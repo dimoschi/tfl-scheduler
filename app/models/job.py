@@ -12,4 +12,4 @@ class Job(Base):
     id = Column(String(191), primary_key=True)
     next_run_time = Column(DOUBLE_PRECISION, index=True)
     job_state = Column(BYTEA, nullable=False)
-    task = relationship("Task", back_populates="job", lazy="joined")
+    task = relationship("Task", back_populates="job", lazy="select")

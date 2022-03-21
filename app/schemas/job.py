@@ -18,14 +18,14 @@ class ByteA:
 # Shared properties
 class JobBase(BaseModel):
     next_run_time: int
-    job_state: ByteA
+    # job_state: ByteA
 
 
 # Properties shared by models stored in DB
 class JobInDBBase(JobBase):
     id: str
     next_run_time: int
-    job_state: ByteA
+    # job_state: ByteA
 
     class Config:
         orm_mode = True

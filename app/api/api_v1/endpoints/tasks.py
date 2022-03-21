@@ -36,6 +36,7 @@ def create_task(
     """
     line = Line(lines=task_in.lines)
     job = scheduler.add_job(line.get_basic_info, "date", run_date=task_in.schedule_time)
+    # TODO: Get job from id and check if it exists in DB
     # If schedule_time is None, no job is actually stored in DB.
     if task_in.schedule_time:
         task = crud.task.create(db=db, obj_in=task_in, job_id=job.id)

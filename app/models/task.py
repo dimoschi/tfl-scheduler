@@ -13,4 +13,4 @@ class Task(Base):
     schedule_time = Column(DateTime)
     lines = Column(ARRAY(String))
     job_id = Column(String(191), ForeignKey(Job.id, ondelete="SET NULL"), nullable=True)
-    job = relationship("Job", back_populates="task", lazy="joined", uselist=False)
+    job = relationship("Job", back_populates="task", lazy="select")
