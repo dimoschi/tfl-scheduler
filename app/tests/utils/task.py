@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-import random
 
 from app import crud, models
 from app.schemas.lines.line import LineCreate
