@@ -43,7 +43,7 @@ def create_task(
     # TODO: Get job from id and check if it exists in DB
     job = crud.job.get(db=db, id=job.id)
     if task.schedule_time and job:
-        task_update = schemas.TaskUpdate(job_id=job.id)
+        task_update = schemas.TaskUpdateInternal(job_id=job.id)
         try:
             task = crud.task.update(db=db, db_obj=task, obj_in=task_update)
         except sa.exc.IntegrityError:
@@ -52,7 +52,7 @@ def create_task(
     return task
 
 
-@router.put("/{id}", response_model=schemas.Task)
+@router.patch("/{id}", response_model=schemas.Task)
 def update_task(
     *,
     db: Session = Depends(deps.get_db),
@@ -60,7 +60,7 @@ def update_task(
     task_in: schemas.TaskUpdate,
 ) -> Any:
     """
-    Update an task.
+    Update a task.
     """
     task = crud.task.get(db=db, id=id)
     if not task:
@@ -69,7 +69,18 @@ def update_task(
     return task
 
 
-@router.get("/{id}", response_model=List[schemas.TaskResult])
+@router.get("/results/{id}", response_model=List[schemas.TaskResult])
+def read_task_results(*, db: Session = Depends(deps.get_db), id: str) -> Any:
+    """
+    Get task results by task ID.
+    """
+    task_results = crud.task_result.get_by_task_id(db=db, task_id=id)
+    if not task_results:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task_results
+
+
+@router.get("/{id}", response_model=schemas.Task)
 def read_task(
     *,
     db: Session = Depends(deps.get_db),
@@ -78,7 +89,7 @@ def read_task(
     """
     Get task by ID.
     """
-    task = crud.task_result.get_by_task_id(db=db, task_id=id)
+    task = crud.task.get(db=db, id=id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
@@ -91,7 +102,7 @@ def delete_task(
     id: int,
 ) -> Any:
     """
-    Delete an task.
+    Delete a task.
     """
     task = crud.task.get(db=db, id=id)
     if not task:
