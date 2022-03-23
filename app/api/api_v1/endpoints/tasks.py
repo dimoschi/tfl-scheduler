@@ -66,6 +66,32 @@ def update_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     task = crud.task.update(db=db, db_obj=task, obj_in=task_in)
+
+    # Check if schedule_time has been updated
+    # and is different with the one we already have stored in DB.
+    if task_in.schedule_time and (task_in.schedule_time != task.schedule_time):
+        # If job_id exists in task use it to update the scheduled job,
+        # else create a new job using the updated schedule_time
+        if task.job_id:
+            job = crud.job.get(task.job_id)
+            scheduler.reschedule_job(job.id, "date", run_date=task_in.schedule_time)
+        else:
+            line = LineJob(task_id=task.id, lines=task.lines)
+            job = scheduler.add_job(
+                line.schedule_task, "date", run_date=task_in.schedule_time
+            )
+            task_update = schemas.TaskUpdateInternal(job_id=job.id)
+            try:
+                task = crud.task.update(db=db, db_obj=task, obj_in=task_update)
+            except sa.exc.IntegrityError:
+                logger.warn("Job executed already")
+    # If schedule_time is None in PATCH and the task has a schedule time,
+    # then the scheduled job must be removed.
+    elif task_in.schedule_time is None and task.schedule_time:
+        if task.job_id:
+            job = crud.job.get(task.job_id)
+            scheduler.remove_job(job.id)
+
     return task
 
 

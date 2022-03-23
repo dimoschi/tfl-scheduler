@@ -22,7 +22,7 @@ class TaskCreate(TaskBase):
 
 # Properties to receive on task update
 class TaskUpdate(TaskBase):
-    pass
+    schedule_time: Optional[datetime] = None
 
 
 class TaskUpdateInternal(TaskUpdate):
