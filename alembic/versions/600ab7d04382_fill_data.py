@@ -7,15 +7,43 @@ Create Date: 2022-03-23 02:10:07.560173
 """
 from alembic import op
 
-from ..data.modes import MODE_INITIAL, MODE_TRUNCATE
-from ..data.servicetype import SERVICE_TYPE_INITIAL, SERVICE_TYPE_TRUNCATE
-
-
 # revision identifiers, used by Alembic.
 revision = "600ab7d04382"
 down_revision = "f5bfdae5368d"
 branch_labels = None
 depends_on = None
+
+MODE_INITIAL = """
+    INSERT INTO mode(
+        id, name, is_tfl_service, is_fare_paying, is_scheduled_service
+    ) VALUES
+        ('bus', 'bus', True, True, True),
+        ('cable-car', 'cable-car', True, True, True),
+        ('coach', 'coach', False, True, True),
+        ('cycle', 'cycle', False, False, False),
+        ('cycle-hire', 'cycle-hire', True, True, False),
+        ('dlr', 'dlr', True, True, True),
+        ('elizabeth-line', 'elizabeth-line', True, True, True),
+        ('interchange-keep-sitting', 'interchange-keep-sitting', False, False, False),
+        ('interchange-secure', 'interchange-secure', False, False, False),
+        ('national-rail', 'national-rail', False, True, True),
+        ('overground', 'overground', True, True, True),
+        ('replacement-bus', 'replacement-bus', True, True, True),
+        ('river-bus', 'river-bus', True, True, True),
+        ('river-tour', 'river-tour', True, True, True),
+        ('taxi', 'taxi', False, False, False),
+        ('tram', 'tram', True, True, True),
+        ('tflrail', 'tflrail', True, True, True),
+        ('tube', 'tube', True, True, True),
+        ('walking', 'walking', False, False, False);"""
+
+MODE_TRUNCATE = "TRUNCATE mode RESTART IDENTITY CASCADE;"
+
+SERVICE_TYPE_INITIAL = """
+    INSERT INTO servicetype(id, name)
+    VALUES ('regular', 'Regular'),  ('night', 'Night');"""
+
+SERVICE_TYPE_TRUNCATE = "TRUNCATE servicetype RESTART IDENTITY CASCADE;"
 
 
 def upgrade():
