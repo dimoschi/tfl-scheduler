@@ -40,7 +40,6 @@ class LineJob:
 
         if line_disruption_results:
             for line_disruption_result in line_disruption_results:
-                print(line_disruption_result)
                 disruption_in = schemas.LineDisruptionCreate(
                     category=line_disruption_result["category"],
                     category_description=line_disruption_result["categoryDescription"],
