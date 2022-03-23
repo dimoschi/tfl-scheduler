@@ -22,6 +22,10 @@ class TaskCreate(TaskBase):
 
 # Properties to receive on task update
 class TaskUpdate(TaskBase):
+    pass
+
+
+class TaskUpdateInternal(TaskUpdate):
     job_id: Optional[str] = None
 
 
