@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -16,11 +14,6 @@ class CRUDTask(CRUDBase[Task, TaskCreate, TaskUpdate]):
         db.commit()
         db.refresh(db_obj)
         return db_obj
-
-    def get_multi_by_creator(
-        self, db: Session, *, skip: int = 0, limit: int = 100
-    ) -> List[Task]:
-        return db.query(self.model).offset(skip).limit(limit).all()
 
 
 task = CRUDTask(Task)

@@ -10,18 +10,19 @@ from app.schemas.job import Job
 class TaskBase(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
+    lines: List[str] = []
 
 
 # Properties to receive on task creation
 class TaskCreate(TaskBase):
     title: str
-    schedule_time: Optional[datetime]
+    schedule_time: Optional[datetime] = None
     lines: List[str]
 
 
 # Properties to receive on task update
 class TaskUpdate(TaskBase):
-    pass
+    job_id: Optional[str] = None
 
 
 # Properties shared by models stored in DB

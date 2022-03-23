@@ -1,4 +1,7 @@
+from .crud_job import job
 from .crud_task import task
+from .crud_task_result import task_result
+from .lines.crud_disruption import line_disruption
 from .lines.crud_line import line
 from .lines.crud_mode import mode
 

@@ -8,8 +8,9 @@ from app.schemas.lines.mode import Mode
 
 # Shared properties
 class LineBase(BaseModel):
-    id: str
-    name: str
+    tfl_id: str
+    tfl_name: str
+    mode_id: str
     line_statuses: Optional[List[Any]] = []
     route_sections: Optional[List[Any]] = []
     disruptions: Optional[List[Any]] = []
@@ -29,8 +30,10 @@ class LineUpdate(LineBase):
 
 # Properties shared by models stored in DB
 class LineInDBBase(LineBase):
-    id: str
-    name: str
+    id: int
+    tfl_id: str
+    tfl_name: str
+    mode_id: str
     line_statuses: Optional[List[Any]] = []
     route_sections: Optional[List[Any]] = []
     disruptions: Optional[List[Any]] = []
@@ -48,4 +51,4 @@ class Line(LineInDBBase):
 
 # Properties stored in DB
 class LineInDB(LineInDBBase):
-    mode_id: str
+    pass

@@ -1,12 +1,14 @@
+from asyncio.log import logger
 from typing import Any, List
 
+import sqlalchemy as sa
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import crud, schemas
 from app.api import deps
+from app.jobs.line import LineJob
 from app.scheduler import scheduler
-from app.tfl.line import Line
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -24,7 +26,8 @@ def read_tasks(
     return tasks
 
 
-@router.post("/", response_model=schemas.Task)
+# , response_model=schemas.Task
+@router.post("/")
 def create_task(
     *,
     db: Session = Depends(deps.get_db),
@@ -34,14 +37,18 @@ def create_task(
     Create new task.
     In case schedule_time is missing it is executed immediately.
     """
-    line = Line(lines=task_in.lines)
-    job = scheduler.add_job(line.get_basic_info, "date", run_date=task_in.schedule_time)
+    task = crud.task.create(db=db, obj_in=task_in)
+    line = LineJob(task_id=task.id, lines=task.lines)
+    job = scheduler.add_job(line.schedule_task, "date", run_date=task_in.schedule_time)
     # TODO: Get job from id and check if it exists in DB
-    # If schedule_time is None, no job is actually stored in DB.
-    if task_in.schedule_time:
-        task = crud.task.create(db=db, obj_in=task_in, job_id=job.id)
-    else:
-        task = crud.task.create(db=db, obj_in=task_in)
+    job = crud.job.get(db=db, id=job.id)
+    if task.schedule_time and job:
+        task_update = schemas.TaskUpdate(job_id=job.id)
+        try:
+            task = crud.task.update(db=db, db_obj=task, obj_in=task_update)
+        except sa.exc.IntegrityError:
+            logger.warn("Job executed already")
+
     return task
 
 
@@ -62,7 +69,7 @@ def update_task(
     return task
 
 
-@router.get("/{id}", response_model=schemas.Task)
+@router.get("/{id}", response_model=List[schemas.TaskResult])
 def read_task(
     *,
     db: Session = Depends(deps.get_db),
@@ -71,7 +78,7 @@ def read_task(
     """
     Get task by ID.
     """
-    task = crud.task.get(db=db, id=id)
+    task = crud.task_result.get_by_task_id(db=db, task_id=id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
